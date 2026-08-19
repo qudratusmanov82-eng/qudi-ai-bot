@@ -703,7 +703,13 @@ try:
     print("Webhook successfully configured")
 except Exception as e:
     print("Webhook error:", repr(e))
-
+@app.get("/api/health")
+def api_health():
+    return {
+        "ok": True,
+        "app": "Qudi AI",
+        "message": "Mini App API ishlayapti"
+    }
 
 if __name__ == "__main__":
     import hypercorn.asyncio
