@@ -119,9 +119,11 @@ def main_menu():
         ],
         [
             {"text": "💎 Premium", "callback_data": "premium"}
+        ],
+        [
+            {"text": "📱 Qudi AI App", "web_app": {"url": "https://qudi-ai-bot.onrender.com/static/index.html"}}
         ]
     ]
-
 
 
 # ---------------- START ----------------
