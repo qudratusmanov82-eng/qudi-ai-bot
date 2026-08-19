@@ -1,4 +1,5 @@
 import os
+import asyncio
 from flask import Flask, request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -7,6 +8,7 @@ TOKEN = os.environ["BOT_TOKEN"]
 BASE_URL = os.environ["BASE_URL"]
 
 app = Flask(__name__)
+
 telegram_app = Application.builder().token(TOKEN).build()
 
 
@@ -52,19 +54,13 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "premium": "💎 Premium тарифлар тез орада очилади."
     }
 
-    await query.message.reply_text(messages.get(query.data, "Тез орада ишлайди."))
+    await query.message.reply_text(
+        messages.get(query.data, "Тез орада ишлайди.")
+    )
 
 
 telegram_app.add_handler(CommandHandler("start", start))
 telegram_app.add_handler(CallbackQueryHandler(button))
-
-
-@app.post("/webhook")
-async def webhook():
-    data = request.get_json(force=True)
-    update = Update.de_json(data, telegram_app.bot)
-    await telegram_app.process_update(update)
-    return "OK"
 
 
 @app.get("/")
@@ -72,19 +68,32 @@ def home():
     return "Qudi AI ishlayapti!"
 
 
+@app.post("/webhook")
+def webhook():
+    data = request.get_json(force=True)
+    update = Update.de_json(data, telegram_app.bot)
+
+    asyncio.run(telegram_app.process_update(update))
+
+    return "OK"
+
+
+async def setup():
+    await telegram_app.initialize()
+    await telegram_app.start()
+    await telegram_app.bot.set_webhook(f"{BASE_URL}/webhook")
+
+
+asyncio.run(setup())
+
+
 if __name__ == "__main__":
-    import asyncio
-    from hypercorn.asyncio import serve
+    import hypercorn.asyncio
     from hypercorn.config import Config
 
-    async def main():
-        await telegram_app.initialize()
-        await telegram_app.start()
-        await telegram_app.bot.set_webhook(f"{BASE_URL}/webhook")
+    config = Config()
+    config.bind = [f"0.0.0.0:{os.environ.get('PORT', '10000')}"]
 
-        config = Config()
-        config.bind = [f"0.0.0.0:{os.environ.get('PORT', '10000')}"]
-
-        await serve(app, config)
-
-    asyncio.run(main())
+    asyncio.run(
+        hypercorn.asyncio.serve(app, config)
+    )
