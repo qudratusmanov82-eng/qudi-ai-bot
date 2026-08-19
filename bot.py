@@ -708,7 +708,7 @@ def api_health():
 @app.post("/api/miniapp")
 def miniapp_api():
     data = request.get_json(silent=True) or {}
-
+    
     return {
         "ok": True,
         "message": "Mini App connection works",
