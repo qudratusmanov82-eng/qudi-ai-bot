@@ -103,7 +103,6 @@ def answer_callback(callback_id):
 
 
 # ---------------- MENU ----------------
-
 def main_menu():
     return [
         [
@@ -122,6 +121,7 @@ def main_menu():
             {"text": "💎 Premium", "callback_data": "premium"}
         ]
     ]
+
 
 
 # ---------------- START ----------------
