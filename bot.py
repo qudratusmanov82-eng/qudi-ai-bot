@@ -680,7 +680,9 @@ def webhook():
             print("BOT ERROR:", repr(e))
 
     return "OK"
-
+@app.get("/miniapp")
+def miniapp():
+    return send_from_directory("static", "index.html")
 
 @app.get("/")
 def home():
